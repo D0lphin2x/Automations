@@ -27,7 +27,7 @@ This Python script automatically logs 8 hours of time in Workday using Selenium 
 bash
 Copy
 Edit
-git clone https://github.com/D0lphin2x/workday-automation.git
+git clone git@github.com:D0lphin2x/Automations.git 
 cd workday-automation
 2. Create a Virtual Environment
 bash
