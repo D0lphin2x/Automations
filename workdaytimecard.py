@@ -23,8 +23,7 @@ driver = webdriver.Edge(service=service, options=options)
 driver.get("REPLACEWITHYOURJOB.com")
 
 # Calculates what day
-today_index = datetime.today().weekday()  # 0 = Monday, 6 = Sunday
-print((today_index + 1) * 8) # used for later, if working different hours each day change the 8
+today_index = datetime.today().weekday()  # 0 = Monday, 6 = Sunday, used for later, if working different hours each day change the 8
 input() # Comment these out after first run
 driver.quit() #Comment these out after first run
 
@@ -50,7 +49,7 @@ driver.quit() #Comment these out after first run
 # element.click()
 
 # wait1 = WebDriverWait(driver, 15)
-# element1 = wait1.until(EC.element_to_be_clickable((By.XPATH, f'//button[@aria-label="This Week ({(today_index + 1) * 8} Hours)"]')))
+# element1 = wait1.until(EC.element_to_be_clickable((By.XPATH, f'//button[@aria-label="This Week ({(today_index) * 8} Hours)"]')))
 # element1.click()
 
 # wait2 = WebDriverWait(driver, 10)
