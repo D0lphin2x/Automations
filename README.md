@@ -1,74 +1,111 @@
-# ⏱ Workday Time Logger Automation (macOS + Selenium)
+# ⏱ Workday Time Entry Automation
 
-This Python script automatically logs 8 hours of time in Workday using Selenium and Microsoft Edge. It is designed to be run daily at a set time (e.g., 5 PM) and handles the login and time entry for you, bypassing 2FA via a persistent browser profile.
+Automate your daily Workday time logging using Selenium and Edge on macOS. This script logs 8 hours for the current weekday (Mon–Fri) in the "Enter Time by Type" view.
 
 ---
 
 ## 📦 Features
 
-- Automates login and navigation to the Workday time entry screen  
-- Detects the current weekday and fills in "8" for that day (Mon–Fri only)  
-- Works with persistent login using a custom Edge browser profile  
-- Can be scheduled to run daily via macOS `launchd`
+- ✅ Automatically logs 8 hours to today's date (Mon–Fri)
+- ✅ Navigates through Workday: Time → This Week → Enter Time by Type → Save
+- ✅ Bypasses Okta/MFA with a saved browser profile
+- ✅ Works with Microsoft Edge and Edge WebDriver
+- ✅ Schedules automatically to run every weekday at 5 PM
 
 ---
 
 ## 🧰 Requirements
 
-- macOS  
-- Python 3.7+  
-- [Microsoft Edge](https://www.microsoft.com/edge)  
-- [Edge WebDriver (msedgedriver)](https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/)  
-- Selenium:
-  ```bash
-  pip install selenium
-🔧 Setup Instructions
-1. Clone this Repository
-bash
-Copy
-Edit
-git clone git@github.com:D0lphin2x/Automations.git 
-cd workday-automation
-2. Create a Virtual Environment
+- macOS
+- Python 3.10+
+- Microsoft Edge
+- Edge WebDriver (msedgedriver)
+- Selenium (`pip install selenium`)
+
+---
+
+## 🚀 Setup Instructions
+
+### 1. Clone the Repo
+
+```bash
+git clone https://github.com/YOUR_USERNAME/Automations.git
+cd Automations
+2. Create Virtual Environment
 bash
 Copy
 Edit
 python3 -m venv venv
 source venv/bin/activate
 pip install selenium
-3. Download msedgedriver
-Download the correct version of msedgedriver and put it in a known path like:
+3. Install Edge WebDriver
+Download from: https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/
 
-swift
+Extract and place somewhere safe (e.g., ~/Downloads/msedgedriver)
+
+⚙️ Configure workday.py
+Open the workday.py file and edit these lines:
+
+a. Set Edge Profile Path
+python
 Copy
 Edit
-/Users/YOURNAME/Downloads/msedgedriver
-4. Configure Your Script
-Open the script file and update:
+options.add_argument("--user-data-dir=/Users/USERNAME/edge_automation_profile")
+This folder stores your login session so you don’t need to enter Duo/MFA every day.
 
-options.add_argument("--user-data-dir=PATH/TO/YOUR/AUTOMATION/PROFILE")
-→ Use a custom folder path (e.g., /Users/YOURNAME/edge_automation_profile)
+b. Set msedgedriver Path
+python
+Copy
+Edit
+service = Service("/Users/USERNAME/Downloads/msedgedriver")
+c. Set Your Workday URL
+python
+Copy
+Edit
+driver.get("https://www.myworkday.com/YOURCOMPANY/d/home.htmld")
+🧪 First-Time Setup (Session Capture)
+Run the script:
 
-service = Service("PATH/TO/YOUR/msedgedriver")
-→ Path to your downloaded msedgedriver
+bash
+Copy
+Edit
+python workday.py
+Log in manually with your username, password, and Okta/Duo if needed.
 
-driver.get("REPLACEWITHYOURJOB.com")
-→ Replace with your actual Workday login URL (e.g., https://www.myworkday.com/mantech/d/home.htmld)
+Once you're logged in and see your Workday homepage, press Enter in Terminal — the window will close.
 
-🧪 First-Time Use
-Run the script and follow the first-time instructions in the script (you’ll see input() prompts).
+Now edit workday.py to comment out the first-time setup section and uncomment the automation block (already included in comments).
 
-Manually log in through the browser once (this creates a saved profile).
+✅ Running the Script
+Once your session is saved:
 
-Once you’ve successfully logged in and closed the browser, comment out the initial setup block and uncomment the automation block.
+bash
+Copy
+Edit
+python workday.py
+It will:
 
-⏰ Automating Daily Execution (macOS only)
-1. Create a shell script (e.g., run_workday.sh)
+Click Time
+
+Choose "This Week"
+
+Click "Enter Time by Type"
+
+Find the correct weekday input
+
+Enter 8
+
+Click "Save and Close"
+
+⏰ Automate Daily with launchd (macOS Only)
+1. Create a Shell Script
+Create run_workday.sh in the same folder:
+
 bash
 Copy
 Edit
 #!/bin/zsh
-cd /path/to/your/project
+cd /Users/USERNAME/Path/To/Automations
 source venv/bin/activate
 python workday.py
 Make it executable:
@@ -77,9 +114,11 @@ bash
 Copy
 Edit
 chmod +x run_workday.sh
-2. Create a launchd plist
-Save this as:
-~/Library/LaunchAgents/com.billy.workdayautomation.plist
+2. Create a Launch Agent
+Create this file:
+~/Library/LaunchAgents/com.username.workdayautomation.plist
+
+Paste this:
 
 xml
 Copy
@@ -90,11 +129,11 @@ Edit
 <plist version="1.0">
 <dict>
   <key>Label</key>
-  <string>com.billy.workdayautomation</string>
+  <string>com.username.workdayautomation</string>
 
   <key>ProgramArguments</key>
   <array>
-    <string>/path/to/your/run_workday.sh</string>
+    <string>/Users/USERNAME/Path/To/Automations/run_workday.sh</string>
   </array>
 
   <key>StartCalendarInterval</key>
@@ -105,26 +144,30 @@ Edit
     <integer>0</integer>
   </dict>
 
-  <key>RunAtLoad</key>
-  <true/>
-
   <key>StandardOutPath</key>
   <string>/tmp/workday.log</string>
   <key>StandardErrorPath</key>
   <string>/tmp/workday.err</string>
+
+  <key>RunAtLoad</key>
+  <true/>
 </dict>
 </plist>
-Then load the agent:
+3. Load the Agent
+bash
+Copy
+Edit
+launchctl load ~/Library/LaunchAgents/com.username.workdayautomation.plist
+(Optional) To start it manually:
 
 bash
 Copy
 Edit
-launchctl load ~/Library/LaunchAgents/com.billy.workdayautomation.plist
-It will now run automatically at 5 PM every day.
+launchctl start com.username.workdayautomation
+Check logs:
 
-🚨 Notes
-Make sure your Edge profile saves your login session (bypasses Duo/Okta after first time).
-
-Avoid running the script on weekends (it skips Saturday and Sunday by default).
-
-This script does not store passwords or any credentials directly — all authentication is done via the saved Edge profile.
+bash
+Copy
+Edit
+cat /tmp/workday.log
+cat /tmp/workday.err
